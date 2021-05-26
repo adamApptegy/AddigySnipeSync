@@ -3,8 +3,8 @@ import json
 import requests
 
 # Get all devices from Addigy
-def load_addigy_devices(local):
-    if local:
+def load_addigy_devices(load_local):
+    if load_local:
         with open('data.json') as f:
             data = json.load(f)
         return data

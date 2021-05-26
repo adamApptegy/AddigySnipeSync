@@ -1,11 +1,9 @@
-import os
 import re
-import json
+import csv
 import html
 import pprint
 import addigy
 import snipe
-import requests
 
 
 # Load variables and secrets
@@ -16,7 +14,7 @@ hw_model_category_lookup = {
     "Laptop": ["MacBook", "MacBookPro", "MacBookAir"],
     "iMac": ["iMacPro", "iMac"],
     "Mac Mini": ["Macmini"],
-    "Tablet": ["iPad"],
+    "iPad": ["iPad"],
     "Mobile Device": ["iPhone", "iPod"]
 }
 
@@ -33,20 +31,19 @@ def get_category_by_hw_type(hw_model):
 
 
 
-
-def get_model(device):
-    device_descriptor = ""
-    if (device['Product Description'] != None):
-        device_descriptor = device['Product Description']
-    elif (device['Device Model Name'] != None):
-        device_descriptor = device['Device Model Name']
-    else:
-        device_descriptor = device['Hardware Model']
-    return device_descriptor
+def load_model_csv(filename):
+    models = {}
+    with open(filename) as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            models[row[0]] = row[1]
+    return models
 
 def main():
     # Do all the things
     print("Running Main")
+
+    model_lookup = load_model_csv("ModelID_Lookup.csv")
 
     # Load Snipe-IT Information
     # Load Models
@@ -109,7 +106,7 @@ def main():
 
     if True:
         # Load Addigy Information
-        devices = addigy.load_addigy_devices(True)
+        devices = addigy.load_addigy_devices(False)
 
         # Do data processing
 
@@ -117,20 +114,24 @@ def main():
 
 
         for device in devices:
-            print(device['Serial Number'])
+            #print(device['Serial Number'])
             #print(device['Product Name'] + " " + device['Product Description'])
 
             hw_model = device['Hardware Model']
             category = get_category_by_hw_type(hw_model)
-            print(category)
-            if category != 'Tablet':
-                continue
+            #print(category)
+            
 
             category_id = category_dict[category]
 
             model_id = None
 
-            device_descriptor = get_model(device)
+            device_descriptor = model_lookup[device['Hardware Model']]
+
+            print(device['Hardware Model'] + "|" + model_lookup[device['Hardware Model']])
+
+            if category != 'iPad' and category != 'Mac Mini':
+                continue
             # check if we've seen this model before
             if device_descriptor not in seen_device_models:
                 print("Checking if new model exists in snipe")

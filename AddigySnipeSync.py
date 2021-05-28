@@ -1,9 +1,9 @@
-import re
-import csv
 import html
 import pprint
-import addigy
+
 import snipe
+import utils
+import addigy
 
 
 # Load variables and secrets
@@ -19,31 +19,11 @@ hw_model_category_lookup = {
 }
 
 
-
-
-
-def get_category_by_hw_type(hw_model):
-    model_type = re.search("[a-zA-Z]+", hw_model).group(0)
-    for model_key, model_value in hw_model_category_lookup.items():
-        if (model_type in model_value):
-            return model_key
-
-
-
-
-def load_model_csv(filename):
-    models = {}
-    with open(filename) as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            models[row[0]] = row[1]
-    return models
-
 def main():
     # Do all the things
     print("Running Main")
 
-    model_lookup = load_model_csv("ModelID_Lookup.csv")
+    model_lookup = utils.load_model_csv("ModelID_Lookup.csv")
 
     # Load Snipe-IT Information
     # Load Models
@@ -118,7 +98,7 @@ def main():
             #print(device['Product Name'] + " " + device['Product Description'])
 
             hw_model = device['Hardware Model']
-            category = get_category_by_hw_type(hw_model)
+            category = utils.get_category_by_hw_type(hw_model, hw_model_category_lookup)
             #print(category)
             
 

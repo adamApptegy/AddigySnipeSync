@@ -65,7 +65,7 @@ def load_snipe_statuses():
     return snipe_get_request("statuslabels")['rows']
 
 def load_snipe_assets(apple_manufacturer_id):
-    querystring = {"limit": "100", "offset": "0",
+    querystring = {"limit": "500", "offset": "0",
                    "sort": "created_at", "order": "asc",
                    "manufacturer_id": apple_manufacturer_id}
     return snipe_get_request("hardware", querystring)['rows']
@@ -78,6 +78,13 @@ def get_snipe_asset_by_serial(serial_number, assets):
         if asset['serial'] == serial_number:
             return asset
     return None
+def get_snipe_user_by_username(username):
+    querystring={"username": username}
+    resp = snipe_get_request("users", querystring)['rows']
+    if len(resp) > 0:
+        return resp[0]
+    else:
+        return None
 
 def get_snipe_status_id(statuses, status_name):
     for status in statuses:
@@ -137,3 +144,17 @@ def update_snipe_asset(assetid, serial):
     else:
         pprint.pprint(response)
         return None
+        
+def assign_to_user(assetid, username):
+    # get id of the user first
+    user = get_snipe_user_by_username(username)
+
+    if user is not None:
+        userid = user["id"]
+        payload = {
+            'checkout_to_type': 'user',
+            'assigned_user': userid
+        }
+
+        print("Attempting to assign to user: " + str(userid))
+        snipe_post_request("hardware/" + str(assetid) + "/checkout", payload)

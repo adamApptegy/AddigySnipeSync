@@ -10,18 +10,24 @@ import addigy
 from dotenv import load_dotenv
 load_dotenv(".env.prod")
 
+DRY_RUN = False
+
 hw_model_category_lookup = {
     "Laptop": ["MacBook", "MacBookPro", "MacBookAir"],
     "iMac": ["iMacPro", "iMac"],
     "Mac Mini": ["Macmini"],
     "iPad": ["iPad"],
-    "Mobile Device": ["iPhone", "iPod"]
+    "Mobile Device": ["iPhone", "iPod"],
+    "Apple TV": [ "AppleTV" ]
 }
+
 
 
 def main():
     # Do all the things
     print("Running Main")
+
+
 
     model_lookup = utils.load_model_csv("ModelID_Lookup.csv")
 
@@ -84,6 +90,8 @@ def main():
     # Load Snipe asset information
     snipe_assets = snipe.load_snipe_assets(snipe_apple_manufacturer_id)
 
+    print("Loaded " + str(len(snipe_assets)) + " snipe assets")
+
     if True:
         # Load Addigy Information
         devices = addigy.load_addigy_devices(False)
@@ -110,8 +118,6 @@ def main():
 
             print(device['Hardware Model'] + "|" + model_lookup[device['Hardware Model']])
 
-            if category != 'iPad' and category != 'Mac Mini':
-                continue
             # check if we've seen this model before
             if device_descriptor not in seen_device_models:
                 print("Checking if new model exists in snipe")
@@ -145,18 +151,17 @@ def main():
                 # Need model id and status id to add device, but model_id needs category_id and manufacturer_id
                 
                 #print("Got status_id: " + str(status_id))
-
-                response = snipe.add_snipe_asset(status_id, model_id)
-                if response is not None:
-                    print("Added asset, updating")
-                    # if it's successful, immediately  update the asset to add the serial number
-                    snipe.update_snipe_asset(response['id'], device['Serial Number'])
-
+                if not DRY_RUN:
+                    response = snipe.add_snipe_asset(status_id, model_id)
+                    if response is not None:
+                        print("Added asset, updating")
+                        # if it's successful, immediately  update the asset to add the serial number
+                        snipe.update_snipe_asset(response['id'], device['Serial Number'])
+                else:
+                    print("Dry run: adding asset")
             else:
                 print("Asset Found with asset tag " + str(asset['asset_tag']) + ", updating")
-
-                # we found the asset, if we want to update Addigy we can
-
+                # if you want to update or sync any fields between addigy and snipe, this would be a good time to do it.
 
             print() #print blank line
 

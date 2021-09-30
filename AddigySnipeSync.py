@@ -1,6 +1,6 @@
 import html
 import pprint
-
+from os.path import join, dirname
 import snipe
 import utils
 import addigy
@@ -8,7 +8,7 @@ import addigy
 
 # Load variables and secrets
 from dotenv import load_dotenv
-load_dotenv(".env.prod")
+load_dotenv(join(dirname(__file__), '.env.prod'))
 
 DRY_RUN = False
 

@@ -146,8 +146,6 @@ def main():
             if asset is None:
                 print("Asset not found, creating in Snipe-IT")
                 
-                
-
                 # Need model id and status id to add device, but model_id needs category_id and manufacturer_id
                 
                 #print("Got status_id: " + str(status_id))

@@ -6,6 +6,8 @@ import utils
 import addigy
 
 
+
+
 # Load variables and secrets
 from dotenv import load_dotenv
 load_dotenv(join(dirname(__file__), '.env.prod'))
@@ -106,8 +108,11 @@ def main():
             #print(device['Product Name'] + " " + device['Product Description'])
 
             hw_model = device['Hardware Model']
+            if "parallels" in hw_model.lower():
+                print("Skipping because this is a VM!")
+                continue
+
             category = utils.get_category_by_hw_type(hw_model, hw_model_category_lookup)
-            #print(category)
             
 
             category_id = category_dict[category]

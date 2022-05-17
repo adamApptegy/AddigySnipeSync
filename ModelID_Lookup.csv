@@ -8,6 +8,7 @@
 "iPad8,3","iPad Pro 11"" (Wi-Fi/Cellular)"
 "iPad8,5","iPad Pro 12.9"" (Wi-Fi Only - 3rd Gen)"
 "iPad13,1","iPad Air 4th Gen (Wi-Fi Only)"
+"iPhone13,2",iPhone 12
 "iPhone10,4",iPhone 8
 "iPhone9,1",iPhone 7
 "iPhone9,2",iPhone 7 Plus
@@ -37,3 +38,4 @@
 "MacBookPro16,2","MacBook Pro 13-Inch (2020)" 
 "MacBookPro18,1","MacBook Pro 16-Inch M1 Pro"
 "MacBookPro18,3","MacBook Pro 14-Inch M1 Pro"
+"MacBookPro18,2","MacBook Pro 16-Inch M1 Max"

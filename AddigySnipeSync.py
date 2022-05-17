@@ -4,6 +4,7 @@ from os.path import join, dirname
 import snipe
 import utils
 import addigy
+import json
 
 
 
@@ -97,17 +98,20 @@ def main():
     if True:
         # Load Addigy Information
         devices = addigy.load_addigy_devices(False)
-
+        
         # Do data processing
 
         seen_device_models = {}   
 
 
         for device in devices:
-            #print(device['Serial Number'])
+            print(device['Serial Number'])
             #print(device['Product Name'] + " " + device['Product Description'])
 
             hw_model = device['Hardware Model']
+            print(hw_model)
+            if hw_model is None:
+                continue
             if "parallels" in hw_model.lower():
                 print("Skipping because this is a VM!")
                 continue
@@ -122,7 +126,7 @@ def main():
             device_descriptor = model_lookup[device['Hardware Model']]
 
             print(device['Hardware Model'] + "|" + model_lookup[device['Hardware Model']])
-
+            print(device['Serial Number'])
             # check if we've seen this model before
             if device_descriptor not in seen_device_models:
                 print("Checking if new model exists in snipe")

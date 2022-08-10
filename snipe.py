@@ -2,6 +2,8 @@ import os
 import json
 import pprint
 import requests
+from ratelimiter import RateLimiter
+
 
 def get_snipe_url():
     return os.getenv('SNIPE_BASE_URL')
@@ -37,6 +39,7 @@ def snipe_post_request(url, payload):
 
     return response.json()
 
+@RateLimiter(max_calls=100, period=60)
 def snipe_put_request(url, payload):
 
     headers = {
@@ -65,10 +68,22 @@ def load_snipe_statuses():
     return snipe_get_request("statuslabels")['rows']
 
 def load_snipe_assets(apple_manufacturer_id):
-    querystring = {"limit": "500", "offset": "0",
-                   "sort": "created_at", "order": "asc",
-                   "manufacturer_id": apple_manufacturer_id}
-    return snipe_get_request("hardware", querystring)['rows']
+    current_page = 0
+    page_limit = 100
+    total = 9999999 # set this to a arbitrarily large value to start with, we'll get the total after the first page results
+    devices = []
+
+    while (current_page*page_limit) < total:
+        #print(f"pulling page {current_page}")
+        querystring = {"limit": str(page_limit), "offset": str(current_page*page_limit),
+                "sort": "created_at", "order": "asc",
+                "manufacturer_id": apple_manufacturer_id}
+        result = snipe_get_request("hardware", querystring)
+        total = result['total']
+        devices.extend(result['rows'])
+        current_page = current_page + 1
+    
+    return devices
 
 
 def get_snipe_asset_by_serial(serial_number, assets):
@@ -120,6 +135,7 @@ def add_snipe_model(model, category_id, manfuacturer_id):
     else:
         pprint.pprint(response)
         return None
+
 def add_snipe_asset(status_id, model_id):
     payload = {
         "status_id": status_id,
@@ -128,6 +144,30 @@ def add_snipe_asset(status_id, model_id):
     response = snipe_post_request("hardware", payload)
     if response["status"] == "success":
         print("success")
+        return response["payload"]
+    else:
+        pprint.pprint(response)
+        return None
+
+def update_purchase_date(assetid, purchase_date):
+    payload = {
+        "purchase_date": purchase_date
+    }
+
+    response = snipe_put_request("hardware/" + str(assetid), payload)
+    if response["status"] == "success":
+        return response["payload"]
+    else:
+        pprint.pprint(response)
+        return None
+
+def update_order_number(assetid, order_number):
+    payload = {
+        "order_number": order_number
+    }
+
+    response = snipe_put_request("hardware/" + str(assetid), payload)
+    if response["status"] == "success":
         return response["payload"]
     else:
         pprint.pprint(response)

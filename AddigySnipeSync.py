@@ -118,13 +118,13 @@ def main():
                 print("Skipping because this is a VM!")
                 continue
             
-            if not device['Serial Number']: #some arbitrary number for now, fix this later
+            if not device['Serial Number']:
                 print("Serial number doesn't look legit")
                 #if there's no serial, skip it, since that's what we're matching on
                 continue
 
             category = utils.get_category_by_hw_type(hw_model, hw_model_category_lookup)
-            print(category)
+            #print(category)
             category_id = category_dict[category]
 
             model_id = None

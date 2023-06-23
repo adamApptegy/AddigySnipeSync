@@ -2,16 +2,15 @@ import html
 import pprint
 from os.path import join, dirname
 import snipe
+import slack
 import utils
 import addigy
 import json
-
-
-
+import os
 
 # Load variables and secrets
 from dotenv import load_dotenv
-load_dotenv(join(dirname(__file__), '.env.prod'))
+load_dotenv(join(dirname(__file__), '.env'))
 
 DRY_RUN = False
 
@@ -118,6 +117,11 @@ def main():
             if "parallels" in hw_model.lower():
                 print("Skipping because this is a VM!")
                 continue
+            
+            if not device['Serial Number']: #some arbitrary number for now, fix this later
+                print("Serial number doesn't look legit")
+                #if there's no serial, skip it, since that's what we're matching on
+                continue
 
             category = utils.get_category_by_hw_type(hw_model, hw_model_category_lookup)
             print(category)
@@ -166,6 +170,10 @@ def main():
                         print("Added asset, updating")
                         # if it's successful, immediately  update the asset to add the serial number
                         snipe.update_snipe_asset(response['id'], device['Serial Number'])
+
+                        #alert slack when a device is added
+
+                        slack.send_message(os.getenv("SLACK_WEBHOOK"), f"*New asset added via Sync* \r\n*Model*: {device_descriptor}\r\n*Serial*: {device['Serial Number']} ")
                 else:
                     print("Dry run: adding asset")
             else:

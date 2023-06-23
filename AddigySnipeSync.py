@@ -16,7 +16,7 @@ load_dotenv(join(dirname(__file__), '.env.prod'))
 DRY_RUN = False
 
 hw_model_category_lookup = {
-    "Laptop": ["MacBook", "MacBookPro", "MacBookAir"],
+    "Laptop": ["MacBook", "MacBookPro", "MacBookAir","Mac"],
     "iMac": ["iMacPro", "iMac"],
     "Mac Mini": ["Macmini"],
     "iPad": ["iPad"],
@@ -32,7 +32,10 @@ def main():
 
 
 
-    model_lookup = utils.load_model_csv("ModelID_Lookup.csv")
+    model_lookup = utils.load_csv_key_value("ModelID_Lookup.csv")
+
+    purchase_lookup = utils.load_csv_key_value("purchase-dates.csv")
+    order_lookup = utils.load_csv_key_value("order-number.csv")
 
     # Load Snipe-IT Information
     # Load Models
@@ -117,8 +120,7 @@ def main():
                 continue
 
             category = utils.get_category_by_hw_type(hw_model, hw_model_category_lookup)
-            
-
+            print(category)
             category_id = category_dict[category]
 
             model_id = None
@@ -169,7 +171,21 @@ def main():
             else:
                 print("Asset Found with asset tag " + str(asset['asset_tag']) + ", updating")
                 # if you want to update or sync any fields between addigy and snipe, this would be a good time to do it.
+                #pprint.pprint(asset)
+                if asset['purchase_date'] is None:
+                    print("attempting to add purchase date")
+                    serial_number = asset['serial']
+                    if serial_number in purchase_lookup.keys():
+                        print(f"Updating purchase date for {asset['id']} to {purchase_lookup[serial_number]}")
+                        snipe.update_purchase_date(asset['id'], purchase_lookup[serial_number])
 
+                if asset['order_number'] is None:
+                    print(f"attempting to add order number to {asset['order_number']}")
+                    serial_number = asset['serial']
+                    if serial_number in order_lookup.keys():
+                        print(f"Updating order number for {asset['id']} to {order_lookup[serial_number]}")
+                        snipe.update_order_number(asset['id'], order_lookup[serial_number])
+                    
             print() #print blank line
 
 

@@ -88,7 +88,6 @@ def load_snipe_assets(apple_manufacturer_id):
 
 def get_snipe_asset_by_serial(serial_number, assets):
     #for asset in assets:
-    # TODO: actually write this method
     for asset in assets:
         if asset['serial'] == serial_number:
             return asset
